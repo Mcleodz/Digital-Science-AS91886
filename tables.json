@@ -1,0 +1,37 @@
+{
+    "floor 1":{
+        "table 1":{
+            "x": 650,
+            "y": 75,
+            "server": "Dan"
+        },
+        "table 2":{
+            "x": 750,
+            "y": 75,
+            "server": "Dan"
+        },
+        "table 3":{
+            "x": 850,
+            "y": 75,
+            "server": "Dan"
+        }
+    },
+    "floor 2":{
+        "table 1":{
+            "x": 650,
+            "y": 75,
+            "server": "Darnell"
+        },
+        "table 2":{
+            "x": 750,
+            "y": 75,
+            "server": "Darnell"
+        },
+        "table 3":{
+            "x": 850,
+            "y": 75,
+            "server": "Darnell"
+        }
+    }
+
+}
