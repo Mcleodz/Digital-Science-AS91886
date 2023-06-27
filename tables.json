@@ -1,36 +1,42 @@
 {
-    "floor 1":{
-        "table 1":{
-            "x": 650,
+    "Main Dining":{
+        "Table 1":{
+            "x": 825,
             "y": 75,
-            "server": "Dan"
+            "server": "Dan",
+            "colour":"green"
         },
-        "table 2":{
-            "x": 750,
+        "Table 2":{
+            "x": 925,
             "y": 75,
-            "server": "Dan"
+            "server": "Dan",
+            "colour":"green"
         },
-        "table 3":{
-            "x": 850,
+        "Table 3":{
+            "x": 1025,
             "y": 75,
-            "server": "Dan"
+            "server": "Dan",
+            "colour":"green"
         }
     },
-    "floor 2":{
+    "Patio":{
         "table 1":{
             "x": 650,
             "y": 75,
-            "server": "Darnell"
+            "server": "Darnell",
+            "colour":"blue"
         },
         "table 2":{
             "x": 750,
             "y": 75,
-            "server": "Darnell"
+            "server": "Darnell",
+            "colour":"blue"
         },
         "table 3":{
             "x": 850,
             "y": 75,
-            "server": "Darnell"
+            "server": "Darnell",
+            "colour":"blue"
         }
     }
 
