@@ -2,9 +2,6 @@
 from tkinter import Button, Label, Tk, Text, END
 import json
 
-# Declaring global variables
-table_identites = []
-
 
 def make_draggable(widget):
     """Drag and Drop Function - 1"""
@@ -81,8 +78,8 @@ def load_table_managment(home_page_root):
     # Creates Boundry object for table drag and drop
     global boundry_object
     boundry_object = Text(table_manager_root, blockcursor=True,
-                          state="disabled", bg="#F06233", height=70, width=150)
-    boundry_object.place(x=800, y=100)
+                          state="disabled", bg="#F06233", height=80, width=150)
+    boundry_object.place(x=800, y=75)
 
     generate_floorplan_buttons(table_manager_root, orders_widget)
 
@@ -92,7 +89,7 @@ def load_table_managment(home_page_root):
     back_button.place(x=0, y=1054)
 
 
-def generate_tables(table_manager_root, floorplan, orders_widget):
+def generate_tables(table_manager_root, orders_widget, floorplan):
     """Generates each table from selected floorplan"""
     with open("tables.json", "r", encoding="utf-8") as tables_file:
         # Loads table json file
@@ -116,11 +113,11 @@ def generate_floorplan_buttons(table_manager_root, orders_widget):
     iterating_x_pos = 0
     with open("tables.json", "r", encoding="utf-8") as tables_file:
         tables_object = json.load(tables_file)
-        for floorplan in tables_object:
-            #! Floorplan that loads is always the last floorplan in tables.json
-            new_floorplan_button = Button(
-                table_manager_root, text=floorplan, command=lambda: generate_tables(table_manager_root, floorplan, orders_widget), font=("Arial", 15))
-            new_floorplan_button.place(x=(1000 + iterating_x_pos), y=25)
+        for floorplan_to_generate in tables_object:
+            #! Floorplan that loads is always the last floorplan in tables
+            new_floorplan_button = Button(table_manager_root, text=floorplan_to_generate,
+                                          command=lambda: generate_tables(table_manager_root, orders_widget, floorplan=floorplan_to_generate), font=("Arial", 15))
+            new_floorplan_button.place(x=(800 + iterating_x_pos), y=15)
             iterating_x_pos += (new_floorplan_button.winfo_reqwidth() + 15)
 
 
