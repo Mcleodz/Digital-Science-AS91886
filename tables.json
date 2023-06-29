@@ -1,43 +1,62 @@
 {
-    "Main Dining":{
-        "Table 1":{
+    "Main Dining": {
+        "Table 1": {
             "x": 825,
             "y": 75,
             "server": "Dan",
-            "colour":"green"
+            "colour": "purple"
         },
-        "Table 2":{
+        "Table 2": {
             "x": 925,
             "y": 75,
             "server": "Dan",
-            "colour":"green"
+            "colour": "purple"
         },
-        "Table 3":{
+        "Table 3": {
             "x": 1025,
             "y": 75,
             "server": "Dan",
-            "colour":"green"
+            "colour": "purple"
         }
     },
-    "Patio":{
-        "table 1":{
-            "x": 650,
+    "Patio": {
+        "table 1": {
+            "x": 825,
             "y": 75,
-            "server": "Darnell",
-            "colour":"blue"
+            "server": "Ollie",
+            "colour": "green"
         },
-        "table 2":{
-            "x": 750,
+        "table 2": {
+            "x": 925,
             "y": 75,
-            "server": "Darnell",
-            "colour":"blue"
+            "server": "Ollie",
+            "colour": "green"
         },
-        "table 3":{
-            "x": 850,
+        "table 3": {
+            "x": 1025,
             "y": 75,
-            "server": "Darnell",
-            "colour":"blue"
+            "server": "Ollie",
+            "colour": "green"
+        }
+    },
+    "Balcony": {
+        "table 1": {
+            "x": 825,
+            "y": 75,
+            "server": "Liam",
+            "colour": "orange"
+        },
+        "table 2": {
+            "x": 925,
+            "y": 75,
+            "server": "Liam",
+            "colour": "orange"
+        },
+        "table 3": {
+            "x": 1025,
+            "y": 75,
+            "server": "Liam",
+            "colour": "orange"
         }
     }
-
 }
