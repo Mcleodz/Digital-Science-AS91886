@@ -1,6 +1,7 @@
 # pylint: disable=W0212, W0601, W0108, C0114
 from tkinter import Button, Label, Tk, Text, END
 import json
+from functools import partial
 
 
 def make_draggable(widget):
@@ -75,6 +76,11 @@ def load_table_managment(home_page_root):
                          fg="#F2EFE9", font=("Arial", 20), insertbackground="#F2EFE9")
     orders_widget.place(x=0, y=0)
 
+    # Creates Widget to display waitstaff
+    waitstaff_box = Text(table_manager_root, height=34, width=27, bg="#655A7C",
+                        fg="#F2EFE9", font=("Arial", 20), insertbackground="#F2EFE9")
+    waitstaff_box.place(x=390, y=0)
+
     # Creates Boundry object for table drag and drop
     global boundry_object
     boundry_object = Text(table_manager_root, blockcursor=True,
@@ -89,36 +95,71 @@ def load_table_managment(home_page_root):
     back_button.place(x=0, y=1054)
 
 
-def generate_tables(table_manager_root, orders_widget, floorplan):
+def generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box):
     """Generates each table from selected floorplan"""
+    # Loads "table.json" file
     with open("tables.json", "r", encoding="utf-8") as tables_file:
-        # Loads table json file
         tables_object = json.load(tables_file)
-        # Iterates through floorplans
+        # Clears loaded tables and servers from waitstaff box
+        clear_tables(table_identities, orders_widget)
+        waitstaff_box.config(state="normal")
+        waitstaff_box.delete(1.0, END)
+        waitstaff_box.insert(END, get_servers_on_floor(floorplan))
+        waitstaff_box.config(state="disabled")
+        # Iterates through floorplans in "table.json" file and checks if current floorplan is chosen floorplan
         for floorplans in tables_object:
-            # Checks if floorplan is specified floor
             if floorplans == floorplan:
-                # Iterates through each table on floor plan
+                # Iterates through tables in chosen floorplan
                 for tables in tables_object[floorplans]:
-                    orders_widget.insert(END, f"{tables}:\n\n")
-                    new_table = Button(table_manager_root, text=tables, fg="white",
-                                       bg=tables_object[floorplans][tables]["colour"])
-                    new_table.place(
-                        x=tables_object[floorplans][tables]["x"], y=tables_object[floorplans][tables]["y"])
+                    # Dispplays current table in orders box
+                    orders_widget.insert(END, f"{tables}:\n\n\n")
+                    # Creates button for current table at saved coordinates.
+                    new_table = Button(table_manager_root, text=tables, fg="white", bg=tables_object[floorplans][tables]["colour"])
+                    new_table.place(x=tables_object[floorplans][tables]["x"], y=tables_object[floorplans][tables]["y"])
                     make_draggable(new_table)
+                    table_identities.append(new_table)
 
 
-def generate_floorplan_buttons(table_manager_root, orders_widget):
+def generate_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box):
     """Generates buttons to load each saved floorplan"""
     iterating_x_pos = 0
     with open("tables.json", "r", encoding="utf-8") as tables_file:
         tables_object = json.load(tables_file)
-        for floorplan_to_generate in tables_object:
+        for floorplan in tables_object:
             #! Floorplan that loads is always the last floorplan in tables
             new_floorplan_button = Button(table_manager_root, text=floorplan_to_generate,
-                                          command=lambda: generate_tables(table_manager_root, orders_widget, floorplan=floorplan_to_generate), font=("Arial", 15))
+                                          command=partial(generate_tables, table_manager_root, floorplan, orders_widget, waitstaff_box), font=("Arial", 15))
             new_floorplan_button.place(x=(800 + iterating_x_pos), y=15)
             iterating_x_pos += (new_floorplan_button.winfo_reqwidth() + 15)
+
+def clear_tables(table_identities, orders_widget):
+    """Deletes current tables and empties the order widget"""
+    # Iterates through placed tables and deletes them, also clears orders
+    for tables in range(len(table_identities)):
+        table_identities[tables].destroy()
+    orders_widget.delete('1.0', END)
+    table_identities=[]
+
+def get_servers_on_floor(floorplan):
+    """Loads and displays the servers on floorplan"""
+    servers_list = []
+    servers_colour = []
+    server_info = []
+    current_server = ""
+    # Loads "tables.json" file
+    with open("tables.json", "r", encoding="utf-8") as tables_file:
+        tables_object = json.load(tables_file)
+        # Iterates through
+        for floorplans in tables_object:
+            if floorplans == floorplan:
+                for tables in tables_object[floorplans]:
+                    current_server = tables_object[floorplans][tables]["server"]
+                    if not current_server in servers_list:
+                        servers_list.append(current_server) 
+                        servers_colour.append(tables_object[floorplans][tables]["colour"])
+    for i in range(len(servers_list)):
+        server_info.append(f"{servers_list[i]}: {servers_colour[i]}\n")
+    return "".join(server_info)
 
 
 load_home_page()
