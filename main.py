@@ -74,6 +74,8 @@ def load_table_managment(home_page_root):
     table_manager_root.attributes("-fullscreen", True)
     home_page_root.destroy()
 
+    floorplan_button_identities = []
+
     # Creates widget to manage orders
     orders_widget = Text(table_manager_root, height=34, width=27, bg="#655A7C",
                         fg="#F2EFE9", font=("Arial", 20), insertbackground="#F2EFE9")
@@ -88,7 +90,7 @@ def load_table_managment(home_page_root):
                           state="disabled", bg="#655A7C",height=5, width=150)
     floorplan_buttons_background.place(x=800, y=0)
 
-    create_new_floorplan_button = Button(table_manager_root, text="+", command=lambda: create_floorplan_interface(), bg="#AB92BF", fg="#F2EFE9", font=("Arial", 15))
+    create_new_floorplan_button = Button(table_manager_root, text="+", command=lambda: create_floorplan_interface(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities), bg="#AB92BF", fg="#F2EFE9", font=("Arial", 15))
     create_new_floorplan_button.place(x=1875, y=15)
 
     # Creates Boundry object for table drag and drop
@@ -97,7 +99,7 @@ def load_table_managment(home_page_root):
                           state="disabled", bg="#F06233", height=80, width=150)
     boundry_object.place(x=800, y=75)
 
-    generate_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box)
+    generate_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities)
 
     back_button = Button(table_manager_root, text="Back", command=lambda: close_page(page_to_close=table_manager_root), bg="#690500", fg="#F2EFE9")
     back_button.place(x=10, y=1045)
@@ -238,7 +240,7 @@ def get_servers_on_floor(floorplan, return_type):
         return "".join(server_info)
 
 # Floorplan functions
-def generate_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box):
+def generate_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities):
     """Generates buttons to load each saved floorplan"""
     iterating_x_pos = 0
     # Loads "table.json" file
@@ -251,6 +253,14 @@ def generate_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box)
             # Places button and updates x position to make buttons evenly spaced apart
             new_floorplan_button.place(x=(825 + iterating_x_pos), y=15)
             iterating_x_pos += (new_floorplan_button.winfo_reqwidth() + 15)
+            floorplan_button_identities.append(new_floorplan_button)
+
+
+def clear_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities):
+    for floorplans in range(len(floorplan_button_identities)):
+        floorplan_button_identities[floorplans].destroy()
+    floorplans=[]
+    generate_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities)
 
 def update_floorplan(floorplan, table_identities):
     """Update the current floorplan"""
@@ -272,7 +282,7 @@ def update_floorplan(floorplan, table_identities):
                                 tables_write_file.write(tables_write_object)
 
 
-def create_floorplan_interface():
+def create_floorplan_interface(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities):
     """User interface for floorplan creation"""
     create_floorplan_popup = Tk()
     create_floorplan_popup.title("Create New Floorplan")
@@ -281,11 +291,11 @@ def create_floorplan_interface():
     floorplan_name = Entry(create_floorplan_popup, width=25, font=("Arial", 15))
     floorplan_name.insert(END, "(New Floorplan Name)")
 
-    submit_button = Button(create_floorplan_popup, text="Submit", bg="#AB92BF", fg="#F2EFE9", command=lambda:create_floorplan(floorplan_name, create_floorplan_popup))
+    submit_button = Button(create_floorplan_popup, text="Submit", bg="#AB92BF", fg="#F2EFE9", command=lambda:create_floorplan(floorplan_name, create_floorplan_popup, table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities))
     floorplan_name.place(x=0, y=0)
     submit_button.place(x=275, y=0)
 
-def create_floorplan(floorplan_name, popup_root):
+def create_floorplan(floorplan_name, popup_root, table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities):
     """Saves requested floorplan to json file"""
     with open("tables.json", "r", encoding="utf-8") as tables_object_read:
         tables = json.load(tables_object_read)
@@ -295,5 +305,6 @@ def create_floorplan(floorplan_name, popup_root):
     with open("tables.json", "w", encoding="utf-8") as tables_object_write:
         tables_object_write.write(new_floorplan)
     popup_root.destroy()
+    clear_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities)
 
 load_home_page()
