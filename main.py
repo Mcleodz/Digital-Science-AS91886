@@ -89,7 +89,7 @@ def load_table_managment(home_page_root):
     floorplan_buttons_background.place(x=800, y=0)
 
     create_new_floorplan_button = Button(table_manager_root, text="+", command=lambda: create_floorplan_interface(), bg="#AB92BF", fg="#F2EFE9", font=("Arial", 15))
-    create_new_floorplan_button.place(x=1700, y=15)
+    create_new_floorplan_button.place(x=1875, y=15)
 
     # Creates Boundry object for table drag and drop
     global boundry_object
@@ -100,7 +100,7 @@ def load_table_managment(home_page_root):
     generate_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box)
 
     back_button = Button(table_manager_root, text="Back", command=lambda: close_page(page_to_close=table_manager_root), bg="#690500", fg="#F2EFE9")
-    back_button.place(x=10, y=730)
+    back_button.place(x=10, y=1045)
 
 # Tables functions
 def generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box):
@@ -117,10 +117,10 @@ def generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box)
         waitstaff_box.config(state="disabled")
 
         update_floorplan_button = Button(table_manager_root, text="Update Current Floorplan", command=lambda:update_floorplan(floorplan, table_identities))
-        update_floorplan_button.place(x=1700, y=730)
+        update_floorplan_button.place(x=1700, y=1045)
 
         create_new_table_button = Button(table_manager_root, text="Add Table", command=lambda:create_new_table_popup(floorplan))
-        create_new_table_button.place(x=825, y=730)
+        create_new_table_button.place(x=825, y=1045)
 
         # Iterates through floorplans in "table.json" file and checks if current floorplan is chosen floorplan
         for floorplans in tables_object:
