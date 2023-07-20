@@ -1,3 +1,12 @@
 {
-    "Main Dining": {}
+    "Main Dining": {
+        "Table 1": {
+            "x": 825,
+            "y": 100,
+            "server": "Ollie",
+            "colour": "Green"
+        }
+    },
+    "Courtyard": {},
+    "Patio": {}
 }

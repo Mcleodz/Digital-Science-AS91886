@@ -91,7 +91,10 @@ def load_table_managment(home_page_root):
     floorplan_buttons_background.place(x=800, y=0)
 
     create_new_floorplan_button = Button(table_manager_root, text="+", command=lambda: create_floorplan_interface(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities), bg="#AB92BF", fg="#F2EFE9", font=("Arial", 15))
-    create_new_floorplan_button.place(x=1875, y=15)
+    create_new_floorplan_button.place(x=1855, y=15)
+
+    delete_floorplan_button = Button(table_manager_root, text="-", command=lambda: delete_floorplan_popup(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities), bg="#AB92BF", fg="#F2EFE9", font=("Arial", 15))
+    delete_floorplan_button.place(x=(1860+create_new_floorplan_button.winfo_reqwidth()), y=15)
 
     # Creates Boundry object for table drag and drop
     global boundry_object
@@ -295,6 +298,7 @@ def create_floorplan_interface(table_manager_root, orders_widget, waitstaff_box,
     floorplan_name.place(x=0, y=0)
     submit_button.place(x=275, y=0)
 
+
 def create_floorplan(floorplan_name, popup_root, table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities):
     """Saves requested floorplan to json file"""
     with open("tables.json", "r", encoding="utf-8") as tables_object_read:
@@ -305,6 +309,41 @@ def create_floorplan(floorplan_name, popup_root, table_manager_root, orders_widg
     with open("tables.json", "w", encoding="utf-8") as tables_object_write:
         tables_object_write.write(new_floorplan)
     popup_root.destroy()
+    clear_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities)
+
+def get_floorplans():
+    floorplan_list = []
+    with open("tables.json", "r") as tables_object:
+        tables = json.load(tables_object)
+        for floorplans in tables:
+            floorplan_list.append(floorplans)
+    return floorplan_list
+
+def delete_floorplan_popup(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities):
+    delete_floorplan_popup_root = Tk()
+    delete_floorplan_popup_root.title("Remove a Floorplan")
+    delete_floorplan_popup_root.geometry("350x100")
+
+    floorplan_default = StringVar(delete_floorplan_popup_root)
+    floorplan_default.set(get_floorplans()[0])
+    options = get_floorplans()
+    floorplan_to_delete = OptionMenu(delete_floorplan_popup_root, floorplan_default, *options)
+    floorplan_to_delete.place(x=0, y=0)
+
+    submit_button = Button(delete_floorplan_popup_root, text="Submit", command=lambda:delete_floorplan(delete_floorplan_popup_root, floorplan_default.get(), table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities))
+    submit_button.place(x=(floorplan_to_delete.winfo_reqwidth()), y=0)
+
+def delete_floorplan(delete_floorplan_popup_root, floorplan_to_delete, table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities):
+    with open("tables.json", "r") as tables_object:
+        tables = json.load(tables_object)
+        for floorplans in tables:
+            if floorplans == floorplan_to_delete:
+                tables.pop(floorplan_to_delete)
+                removed_floorplan = json.dumps(tables, indent=4)
+                with open("tables.json", "w") as tables_object_write:
+                    tables_object_write.write(removed_floorplan)
+                    delete_floorplan_popup_root.destroy()
+                break
     clear_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities)
 
 load_home_page()
