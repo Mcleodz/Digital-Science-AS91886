@@ -58,7 +58,7 @@ def load_home_page():
 
     # Makes button to load reservation manager software
     reservation_manager_button = Button(home_page_root,
-                                        text="Reservation manager", command=lambda: print("hi"), width=84, height=5, bg="#655A7C",
+                                        text="Reservation manager", command=lambda: warning_popup("Reservation manager is not currently available"), width=84, height=5, bg="#655A7C",
                                         fg="#F2EFE9", font=("Arial", 30))
     reservation_manager_button.pack()
 
@@ -219,11 +219,13 @@ def create_server_for_floor(new_table_prompt, floorplan, table_name, table_x, ta
 
 def create_new_table(popup_root, floorplan, table_name, table_server, table_x, table_y, table_colour):
     """Gets and saves user inputted information for new table being created"""
+    server = table_server.get()
+    colour = table_colour.get()
     new_table_info = {
         "x": table_x,
         "y": table_y,
-        "server": table_server.get(),
-        "colour": table_colour.get()
+        "server": server,
+        "colour": colour
     }
     with open("tables.json", "r", encoding="utf-8") as table_object_read:
         tables_read = json.load(table_object_read)
@@ -231,7 +233,10 @@ def create_new_table(popup_root, floorplan, table_name, table_server, table_x, t
             if floorplans == floorplan:
                 if not table_name.get() in tables_read[floorplan]:
                     tables_read[floorplan][table_name.get()] = {}
-                tables_read[floorplan][table_name.get()].update(new_table_info)
+                else:
+                    warning_popup("Table Already Exists")
+                tables_read[floorplan][table_name.get()].update(
+                    new_table_info)
         added_table = json.dumps(tables_read, indent=4)
     with open("tables.json", "w", encoding="utf-8") as tables_object_write:
         tables_object_write.write(added_table)
@@ -249,7 +254,7 @@ def clear_tables(table_identities, orders_widget):
 
 
 # Waitstaff functions:
-def get_servers_on_floor(floorplan, return_type):
+def get_servers_on_floor(floorplan, return_type, *server):
     """Loads and displays the servers on floorplan"""
     servers_list = []
     servers_colour = []
@@ -273,12 +278,13 @@ def get_servers_on_floor(floorplan, return_type):
             return servers_list
         else:
             return servers_list
-    if return_type == "servers_color":
-        return servers_colour
     if return_type == "servers_key":
         for i in range(len(servers_list)):
             server_info.append(f"{servers_list[i]}: {servers_colour[i]}\n")
         return "".join(server_info)
+    if return_type == "servers_color":
+        print(servers_colour, servers_colour[server])
+        return server_info[server]
 
 
 # Floorplan functions:
@@ -352,6 +358,8 @@ def create_floorplan(floorplan_name, popup_root, table_manager_root, orders_widg
         tables = json.load(tables_object_read)
         if not floorplan_name.get() in tables:
             tables[floorplan_name.get()] = {}
+        else:
+            warning_popup("Floorplan Already Exists")
         new_floorplan = json.dumps(tables, indent=4)
     with open("tables.json", "w", encoding="utf-8") as tables_object_write:
         tables_object_write.write(new_floorplan)
@@ -380,7 +388,7 @@ def delete_floorplan_popup(table_manager_root, orders_widget, waitstaff_box, flo
     floorplan_default.set(get_floorplans()[0])
     options = get_floorplans()
     floorplan_to_delete = OptionMenu(
-        delete_floorplan_popup_root, floorplan_default, value="", *options)
+        delete_floorplan_popup_root, floorplan_default, options[0], * options)
     floorplan_to_delete.place(x=0, y=0)
 
     submit_button = Button(delete_floorplan_popup_root, text="Submit",
@@ -406,6 +414,17 @@ def delete_floorplan(delete_floorplan_popup_root, floorplan_to_delete, table_man
 
 
 # Popup Functions:
+def warning_popup(warning):
+    warning_popup_root = Tk()
+    warning_popup_root.geometry("250x250")
+    warning_popup_root.title(f"{warning}")
+
+    warning_text = Label(warning_popup_root, text=warning)
+    cancel_button = Button(warning_popup_root, text="Cancel",
+                           command=lambda: warning_popup_root.destroy())
+
+    warning_text.place(x=0, y=0)
+    cancel_button.place(x=0, y=(warning_text.winfo_reqheight()))
 
 
 load_home_page()
