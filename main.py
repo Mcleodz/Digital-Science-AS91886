@@ -159,7 +159,8 @@ def generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box)
                     orders_widget.insert(END, f"{tables}:\n\n\n")
                     # Creates button for current table at saved coordinates.
                     new_table = Button(table_manager_root, text=tables, fg="white",
-                                       bg=tables_object[floorplans][tables]["colour"])
+                                       bg=tables_object[floorplans][tables]["colour"],
+                                       command=partial(config_table_gui, tables, tables_object[floorplans][tables]["colour"], tables_object[floorplans][tables]["server"]))
                     new_table.place(x=tables_object[floorplans][tables]["x"],
                                     y=tables_object[floorplans][tables]["y"])
                     make_draggable(new_table)
@@ -170,7 +171,7 @@ def create_new_table_popup(floorplan):
     """User Interface for table creation"""
     new_table_prompt = Tk()
     new_table_prompt.title("Create a Table")
-    new_table_prompt.geometry("500x500")
+    new_table_prompt.geometry("330x100")
 
     server_default = StringVar(new_table_prompt)
     server_default.set(get_servers_on_floor(floorplan, "servers_list")[0])
@@ -253,7 +254,35 @@ def clear_tables(table_identities, orders_widget):
     table_identities = []
 
 
+def config_table_gui(table_name, table_colour, table_server):
+    """Allows user to config a table"""
+    config_table_popup = Tk()
+    config_table_popup.title(f"Configure {table_name}")
+    config_table_popup.geometry("330x100")
+
+    table_name_entry = Entry(config_table_popup, width=25, font=("Arial", 15))
+    table_name_entry.insert(END, f"({table_name})")
+    table_name_entry.place(x=0, y=0)
+
+    table_colour_entry = Entry(
+        config_table_popup, width=25, font=("Arial", 15))
+    table_colour_entry.insert(END, f"({table_colour})")
+    table_colour_entry.place(x=0, y=(table_name_entry.winfo_reqheight()))
+
+    table_server_entry = Entry(
+        config_table_popup, width=25, font=("Arial", 15))
+    table_server_entry.insert(END, f"({table_server})")
+    table_server_entry.place(x=0, y=(
+        table_name_entry.winfo_reqheight()+table_colour_entry.winfo_reqheight()))
+
+    cancel_button = Button(config_table_popup, text="Cancel",
+                           command=lambda: config_table_popup.destroy())
+    cancel_button.place(x=table_name_entry.winfo_reqwidth(), y=0)
+
+
 # Waitstaff functions:
+
+
 def get_servers_on_floor(floorplan, return_type, *server):
     """Loads and displays the servers on floorplan"""
     servers_list = []
@@ -415,6 +444,7 @@ def delete_floorplan(delete_floorplan_popup_root, floorplan_to_delete, table_man
 
 # Popup Functions:
 def warning_popup(warning):
+    """Function to create generic popups when needed"""
     warning_popup_root = Tk()
     warning_popup_root.geometry("250x250")
     warning_popup_root.title(f"{warning}")
