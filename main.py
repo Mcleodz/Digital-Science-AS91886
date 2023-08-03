@@ -5,8 +5,6 @@ from functools import partial
 
 # pylint: disable = W0212, W0108, W0601, W0621, C0200, C0301
 
-# Drag and drop functions:
-
 
 def make_draggable(widget):
     """Drag and Drop Function - 1"""
@@ -33,7 +31,6 @@ def on_drag_motion(event):
 
 
 # GUI Generation Functions:
-
 
 def load_home_page():
     """Home page creation code"""
@@ -77,13 +74,12 @@ def close_page(page_to_close):
 def load_table_managment(home_page_root):
     """Loads the table manager page"""
     # Creates Table Management root
-    global table_manager_root, orders_widget, waitstaff_box
+    global table_manager_root, orders_widget, waitstaff_box, table_identities, boundry_object
     table_manager_root = Tk()
     table_manager_root.title("Aterio - Table Management")
     table_manager_root.attributes("-fullscreen", True)
     home_page_root.destroy()
 
-    global table_identities
     table_identities = []
     floorplan_button_identities = []
 
@@ -115,13 +111,12 @@ def load_table_managment(home_page_root):
         x=(1760+create_new_floorplan_button.winfo_reqwidth()), y=15)
 
     # Creates Boundry object for table drag and drop
-    global boundry_object
     boundry_object = Text(table_manager_root, blockcursor=True,
                           state="disabled", bg="#F06233", height=80, width=150)
     boundry_object.place(x=800, y=75)
 
-    generate_floorplan_buttons(
-        table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities)
+    generate_floorplan_buttons(table_manager_root, orders_widget,
+                               waitstaff_box, floorplan_button_identities,)
 
     back_button = Button(table_manager_root, text="Back", command=lambda: close_page(
         page_to_close=table_manager_root), bg="#690500", fg="#F2EFE9")
@@ -129,7 +124,7 @@ def load_table_managment(home_page_root):
 
 
 # Tables functions:
-def generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box):
+def generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box, table_identities):
     """Generates each table from selected floorplan"""
     # Clears loaded tables and servers from waitstaff box
     clear_tables(table_identities, orders_widget)
@@ -311,8 +306,8 @@ def config_table(floorplan, table_name_entry, table_colour_entry, table_server_e
     with open("tables.json", "w", encoding="utf-8") as tables_config_write:
         to_write = json.dumps(tables_config, indent=4)
         tables_config_write.write(to_write)
-    generate_tables(table_manager_root, floorplan,
-                    orders_widget, waitstaff_box)
+        generate_tables(table_manager_root, floorplan, orders_widget,
+                        waitstaff_box, table_identities)
     config_table_popup.destroy()
 
 
@@ -351,7 +346,7 @@ def get_servers_on_floor(floorplan, return_type, *server):
 
 
 # Floorplan functions:
-def generate_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities):
+def generate_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities,):
     """Generates buttons to load each saved floorplan"""
     iterating_x_pos = 0
     # Loads "table.json" file
@@ -362,7 +357,7 @@ def generate_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box,
             new_floorplan_button = Button(
                 table_manager_root, text=floorplan, font=("Arial", 15))
             new_floorplan_button.config(command=partial(
-                generate_tables, table_manager_root, floorplan, orders_widget, waitstaff_box))
+                generate_tables, table_manager_root, floorplan, orders_widget, waitstaff_box, table_identities))
             # Places button and updates x position to make buttons evenly spaced apart
             new_floorplan_button.place(x=(825 + iterating_x_pos), y=15)
             iterating_x_pos += (new_floorplan_button.winfo_reqwidth() + 15)
@@ -371,7 +366,7 @@ def generate_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box,
 
 def clear_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities):
     """Function to delete and regenerate floorplan buttons when new floorplan is created"""
-    for floorplans in enumerate(floorplan_button_identities):
+    for floorplans in range(len(floorplan_button_identities)):
         floorplan_button_identities[floorplans].destroy()
     floorplans = []
     generate_floorplan_buttons(
@@ -380,25 +375,21 @@ def clear_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box, fl
 
 def update_floorplan(floorplan, table_identities):
     """Update the current floorplan"""
-    # Loads "tables.json" file
-    with open("tables.json", "r", encoding="utf-8") as tables_file:
-        tables_object = json.load(tables_file)
-        # Iterates through each floorplan in "tables.json"
-        for tables_to_update in table_identities:
-            for floorplans in tables_object:
-                if floorplans == floorplan:
-                    for tables in tables_object[floorplans]:
-                        if tables_to_update["text"] == tables:
-                            new_x = tables_to_update.winfo_x()
-                            new_y = tables_to_update.winfo_y()
-                            tables_object[floorplans][tables]["x"] = new_x
-                            tables_object[floorplans][tables]["y"] = new_y
-                            with open("tables.json", "w", encoding="utf-8") as tables_write_file:
-                                tables_write_object = json.dumps(
-                                    tables_object, indent=4)
-                                tables_write_file.write(tables_write_object)
-        generate_tables(table_manager_root, floorplan,
-                        orders_widget, waitstaff_box)
+    counter = 0
+    with open("tables.json", "r", encoding="utf-8") as tables_read_obj:
+        tables_read = json.load(tables_read_obj)
+        for floorplans in tables_read:
+            if floorplans == floorplan:
+                for tables in tables_read[floorplans]:
+                    if tables == table_identities[counter]["text"]:
+                        new_x = table_identities[counter].winfo_x()
+                        new_y = table_identities[counter].winfo_y()
+                        tables_read[floorplans][tables]["x"] = new_x
+                        tables_read[floorplans][tables]["y"] = new_y
+                        tables_write = json.dumps(tables_read, indent=4)
+                        with open("tables.json", "w", encoding="utf-8") as tables_object_write:
+                            tables_object_write.write(tables_write)
+                    counter += 1
 
 
 def create_floorplan_interface(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities):

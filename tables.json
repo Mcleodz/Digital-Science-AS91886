@@ -1,10 +1,16 @@
 {
     "Main Dining": {
         "Table 1": {
-            "x": 922,
-            "y": 191,
-            "server": "Michael",
-            "colour": "Blue"
+            "x": 1099,
+            "y": 181,
+            "server": "Liam",
+            "colour": "Red"
+        },
+        "Table 2": {
+            "x": 1373,
+            "y": 366,
+            "server": "Liam",
+            "colour": "Red"
         }
     }
 }
