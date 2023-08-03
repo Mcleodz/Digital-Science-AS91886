@@ -1,1 +1,10 @@
-{}
+{
+    "Main Dining": {
+        "Table 1": {
+            "x": 922,
+            "y": 191,
+            "server": "Michael",
+            "colour": "Blue"
+        }
+    }
+}

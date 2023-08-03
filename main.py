@@ -5,9 +5,6 @@ from functools import partial
 
 # pylint: disable = W0212, W0108, W0601, W0621, C0200, C0301
 
-# Declaring global variables
-table_identities = []
-
 # Drag and drop functions:
 
 
@@ -30,9 +27,10 @@ def on_drag_motion(event):
     x_pos = widget.winfo_x() - widget._drag_start_x + event.x
     y_pos = widget.winfo_y() - widget._drag_start_y + event.y
     if x_pos > boundry_object.winfo_x() and y_pos > boundry_object.winfo_y() and x_pos < (
-            boundry_object.winfo_x() + boundry_object.winfo_width()
-    )-widget.winfo_width() and y_pos < boundry_object.winfo_y() + boundry_object.winfo_height():
+            boundry_object.winfo_x() + boundry_object.winfo_width()) -\
+            widget.winfo_width() and y_pos < boundry_object.winfo_y() + boundry_object.winfo_height():
         widget.place(x=x_pos, y=y_pos)
+
 
 # GUI Generation Functions:
 
@@ -79,11 +77,14 @@ def close_page(page_to_close):
 def load_table_managment(home_page_root):
     """Loads the table manager page"""
     # Creates Table Management root
+    global table_manager_root, orders_widget, waitstaff_box
     table_manager_root = Tk()
     table_manager_root.title("Aterio - Table Management")
     table_manager_root.attributes("-fullscreen", True)
     home_page_root.destroy()
 
+    global table_identities
+    table_identities = []
     floorplan_button_identities = []
 
     # Creates widget to manage orders
@@ -130,11 +131,11 @@ def load_table_managment(home_page_root):
 # Tables functions:
 def generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box):
     """Generates each table from selected floorplan"""
+    # Clears loaded tables and servers from waitstaff box
+    clear_tables(table_identities, orders_widget)
     # Loads "table.json" file
     with open("tables.json", "r", encoding="utf-8") as tables_file:
         tables_object = json.load(tables_file)
-        # Clears loaded tables and servers from waitstaff box
-        clear_tables(table_identities, orders_widget)
 
         waitstaff_box.config(state="normal")
         waitstaff_box.delete(1.0, END)
@@ -160,7 +161,7 @@ def generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box)
                     # Creates button for current table at saved coordinates.
                     new_table = Button(table_manager_root, text=tables, fg="white",
                                        bg=tables_object[floorplans][tables]["colour"],
-                                       command=partial(config_table_gui, tables, tables_object[floorplans][tables]["colour"], tables_object[floorplans][tables]["server"]))
+                                       command=partial(config_table_gui, floorplan, tables, tables_object[floorplans][tables]["colour"], tables_object[floorplans][tables]["server"]))
                     new_table.place(x=tables_object[floorplans][tables]["x"],
                                     y=tables_object[floorplans][tables]["y"])
                     make_draggable(new_table)
@@ -254,13 +255,14 @@ def clear_tables(table_identities, orders_widget):
     table_identities = []
 
 
-def config_table_gui(table_name, table_colour, table_server):
+def config_table_gui(floorplan, table_name, table_colour, table_server):
     """Allows user to config a table"""
     config_table_popup = Tk()
     config_table_popup.title(f"Configure {table_name}")
     config_table_popup.geometry("330x100")
 
-    table_name_entry = Entry(config_table_popup, width=25, font=("Arial", 15))
+    table_name_entry = Entry(
+        config_table_popup, width=25, font=("Arial", 15))
     table_name_entry.insert(END, f"({table_name})")
     table_name_entry.place(x=0, y=0)
 
@@ -279,10 +281,42 @@ def config_table_gui(table_name, table_colour, table_server):
                            command=lambda: config_table_popup.destroy())
     cancel_button.place(x=table_name_entry.winfo_reqwidth(), y=0)
 
+    submit_button = Button(config_table_popup, text="Submit", command=lambda: config_table(
+        floorplan, table_name_entry, table_colour_entry, table_server_entry, table_name, config_table_popup))
+    submit_button.place(x=table_name_entry.winfo_reqwidth(),
+                        y=cancel_button.winfo_reqheight())
+
+
+def config_table(floorplan, table_name_entry, table_colour_entry, table_server_entry, table_name, config_table_popup):
+    """Saves configurements to json file"""
+    existing_table_name = table_name
+    # Sets user input to new var name.
+    new_table_name = table_name_entry.get()
+    new_table_colour = table_colour_entry.get()
+    new_table_server = table_server_entry.get()
+    with open("tables.json", "r", encoding="utf-8") as tables_config_obj:
+        tables_config = json.load(tables_config_obj)
+        for floorplans in tables_config:
+            if floorplans == floorplan:
+                for tables in tables_config[floorplans]:
+                    if tables == existing_table_name:
+                        # Finds table to configure and edits server name and colour.
+                        tables_config[floorplans][tables]["server"] = new_table_server
+                        tables_config[floorplans][tables]["colour"] = new_table_colour
+                        # Replaces table name with new table name and deletes old one.
+                        tables_config[floorplans][new_table_name] = tables_config[floorplans][tables]
+                        del tables_config[floorplans][tables]
+                        break
+    # Saves table name and content to json file.
+    with open("tables.json", "w", encoding="utf-8") as tables_config_write:
+        to_write = json.dumps(tables_config, indent=4)
+        tables_config_write.write(to_write)
+    generate_tables(table_manager_root, floorplan,
+                    orders_widget, waitstaff_box)
+    config_table_popup.destroy()
+
 
 # Waitstaff functions:
-
-
 def get_servers_on_floor(floorplan, return_type, *server):
     """Loads and displays the servers on floorplan"""
     servers_list = []
@@ -363,6 +397,8 @@ def update_floorplan(floorplan, table_identities):
                                 tables_write_object = json.dumps(
                                     tables_object, indent=4)
                                 tables_write_file.write(tables_write_object)
+        generate_tables(table_manager_root, floorplan,
+                        orders_widget, waitstaff_box)
 
 
 def create_floorplan_interface(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities):
