@@ -24,6 +24,7 @@ def on_drag_motion(event):
     widget = event.widget
     x_pos = widget.winfo_x() - widget._drag_start_x + event.x
     y_pos = widget.winfo_y() - widget._drag_start_y + event.y
+
     if x_pos > boundry_object.winfo_x() and y_pos > boundry_object.winfo_y() and x_pos < (
             boundry_object.winfo_x() + boundry_object.winfo_width()) -\
             widget.winfo_width() and y_pos < boundry_object.winfo_y() + boundry_object.winfo_height():
@@ -126,8 +127,9 @@ def load_table_managment(home_page_root):
 # Tables functions:
 def generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box, table_identities):
     """Generates each table from selected floorplan"""
-    # Clears loaded tables and servers from waitstaff box
-    clear_tables(table_identities, orders_widget)
+    if not table_identities == []:
+        table_identities = floorplan_update(
+            floorplan, table_identities, orders_widget)
     # Loads "table.json" file
     with open("tables.json", "r", encoding="utf-8") as tables_file:
         tables_object = json.load(tables_file)
@@ -137,10 +139,6 @@ def generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box,
         waitstaff_box.insert(
             END, get_servers_on_floor(floorplan, "servers_key"))
         waitstaff_box.config(state="disabled")
-
-        update_floorplan_button = Button(table_manager_root, text="Update Current Floorplan",
-                                         command=lambda: update_floorplan(floorplan, table_identities))
-        update_floorplan_button.place(x=1700, y=1045)
 
         create_new_table_button = Button(
             table_manager_root, text="Add Table", command=lambda: create_new_table_popup(floorplan))
@@ -238,16 +236,6 @@ def create_new_table(popup_root, floorplan, table_name, table_server, table_x, t
     with open("tables.json", "w", encoding="utf-8") as tables_object_write:
         tables_object_write.write(added_table)
     popup_root.destroy()
-    update_floorplan(floorplan, table_identities)
-
-
-def clear_tables(table_identities, orders_widget):
-    """Deletes current tables and empties the order widget"""
-    # Iterates through placed tables and deletes them, also clears orders
-    for tables in range(len(table_identities)):
-        table_identities[tables].destroy()
-    orders_widget.delete('1.0', END)
-    table_identities = []
 
 
 def config_table_gui(floorplan, table_name, table_colour, table_server):
@@ -373,25 +361,6 @@ def clear_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box, fl
         table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities)
 
 
-def update_floorplan(floorplan, table_identities):
-    """Update the current floorplan"""
-    counter = 0
-    with open("tables.json", "r", encoding="utf-8") as tables_read_obj:
-        tables_read = json.load(tables_read_obj)
-        for floorplans in tables_read:
-            if floorplans == floorplan:
-                for tables in tables_read[floorplans]:
-                    if tables == table_identities[counter]["text"]:
-                        new_x = table_identities[counter].winfo_x()
-                        new_y = table_identities[counter].winfo_y()
-                        tables_read[floorplans][tables]["x"] = new_x
-                        tables_read[floorplans][tables]["y"] = new_y
-                        tables_write = json.dumps(tables_read, indent=4)
-                        with open("tables.json", "w", encoding="utf-8") as tables_object_write:
-                            tables_object_write.write(tables_write)
-                    counter += 1
-
-
 def create_floorplan_interface(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities):
     """User interface for floorplan creation"""
     create_floorplan_popup = Tk()
@@ -467,6 +436,30 @@ def delete_floorplan(delete_floorplan_popup_root, floorplan_to_delete, table_man
                 break
     clear_floorplan_buttons(table_manager_root, orders_widget,
                             waitstaff_box, floorplan_button_identities)
+
+
+def floorplan_update(floorplan, table_identities, orders_widget):
+    table_to_check = 0
+    with open("tables.json", "r", encoding="utf-8") as find_floorplan_object:
+        find_floorplan = json.load(find_floorplan_object)
+        for floorplans in find_floorplan:
+            if floorplans == floorplan:
+                for tables in find_floorplan[floorplans]:
+                    if tables == table_identities[table_to_check]["text"]:
+                        new_x = table_identities[table_to_check].winfo_x()
+                        new_y = table_identities[table_to_check].winfo_y()
+                        find_floorplan[floorplans][tables]['x'] = new_x
+                        find_floorplan[floorplans][tables]['y'] = new_y
+                        floorplan_update_writing = json.dumps(
+                            find_floorplan, indent=4)
+                        with open("tables.json", "w", encoding="utf-8") as floorplan_save_object:
+                            floorplan_save_object.write(
+                                floorplan_update_writing)
+                        table_identities[table_to_check].destroy()
+                        table_identities.remove(
+                            table_identities[table_to_check])
+    orders_widget.delete("1.0", END)
+    return table_identities
 
 
 # Popup Functions:

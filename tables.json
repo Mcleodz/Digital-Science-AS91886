@@ -1,16 +1,30 @@
 {
     "Main Dining": {
         "Table 1": {
-            "x": 1099,
-            "y": 181,
+            "x": 823,
+            "y": 446,
             "server": "Liam",
             "colour": "Red"
         },
         "Table 2": {
-            "x": 1373,
-            "y": 366,
+            "x": 1341,
+            "y": 149,
             "server": "Liam",
             "colour": "Red"
+        }
+    },
+    "Patio": {
+        "Table 1": {
+            "x": 823,
+            "y": 446,
+            "server": "Zac",
+            "colour": "Green"
+        },
+        "Table 2": {
+            "x": 1341,
+            "y": 149,
+            "server": "Zac",
+            "colour": "Green"
         }
     }
 }
