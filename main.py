@@ -75,7 +75,7 @@ def close_page(page_to_close):
 def load_table_managment(home_page_root):
     """Loads the table manager page"""
     # Creates Table Management root
-    global table_manager_root, orders_widget, waitstaff_box, table_identities, boundry_object
+    global table_manager_root, orders_widget, waitstaff_box, table_identities, boundry_object, floorplan_button_identities
     table_manager_root = Tk()
     table_manager_root.title("Aterio - Table Management")
     table_manager_root.attributes("-fullscreen", True)
@@ -127,9 +127,8 @@ def load_table_managment(home_page_root):
 # Tables functions:
 def generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box, table_identities):
     """Generates each table from selected floorplan"""
-    if not table_identities == []:
-        table_identities = floorplan_update(
-            floorplan, table_identities, orders_widget)
+    
+    clear_page(table_identities, orders_widget, floorplan_button_identities, waitstaff_box)
     # Loads "table.json" file
     with open("tables.json", "r", encoding="utf-8") as tables_file:
         tables_object = json.load(tables_file)
@@ -159,6 +158,8 @@ def generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box,
                                     y=tables_object[floorplans][tables]["y"])
                     make_draggable(new_table)
                     table_identities.append(new_table)
+    save_floorplan_button = Button(table_manager_root, text="Save Floorplan", command=lambda: save_tables(floorplan, table_identities), bg="#690500", fg="#F2EFE9")
+    save_floorplan_button.place(x=1525, y= 1045)
 
 
 def create_new_table_popup(floorplan):
@@ -299,6 +300,31 @@ def config_table(floorplan, table_name_entry, table_colour_entry, table_server_e
     config_table_popup.destroy()
 
 
+def clear_page(table_identities, orders_widget, floorplan_button_identities, waitstaff_box):
+    clear_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities)
+    for tables in range(len(table_identities)):
+        table_identities[tables].destroy()
+        orders_widget.delete("1.0", END)
+
+
+def save_tables(floorplan, table_identities):
+    table_number = 0
+    with open("tables.json", "r", encoding="utf-8") as tables_object:
+        tables_list = json.load(tables_object)
+        for floors in tables_list:
+            if floors == floorplan:
+                for tables in tables_list[floorplan]:
+                    if table_identities[table_number]["text"] == tables:
+                        current_table = table_identities[table_number]
+                        current_table_name = table_identities[table_number]["text"]
+                        tables_list[floorplan][current_table_name]["x"] = current_table.winfo_x()
+                        tables_list[floorplan][current_table_name]["y"] = current_table.winfo_y()
+                        updated_table = json.dumps(tables_list, indent=4)
+                        with open("tables.json", "w", encoding="utf-8") as tables_object_w:
+                            tables_object_w.write(updated_table)
+                        table_number += 1
+
+
 # Waitstaff functions:
 def get_servers_on_floor(floorplan, return_type, *server):
     """Loads and displays the servers on floorplan"""
@@ -329,7 +355,6 @@ def get_servers_on_floor(floorplan, return_type, *server):
             server_info.append(f"{servers_list[i]}: {servers_colour[i]}\n")
         return "".join(server_info)
     if return_type == "servers_color":
-        print(servers_colour, servers_colour[server])
         return server_info[server]
 
 
