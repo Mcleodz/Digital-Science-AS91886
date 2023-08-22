@@ -1,1 +1,29 @@
-{}
+{
+    "Main Dining": {
+        "Table 1": {
+            "x": 1124,
+            "y": 358,
+            "server": "Ollie",
+            "colour": "Green"
+        },
+        "Table 2": {
+            "x": 920,
+            "y": 268,
+            "server": "Ollie",
+            "colour": "Green"
+        },
+        "Table 3": {
+            "x": 1506,
+            "y": 835,
+            "server": "Ollie",
+            "colour": "Green"
+        },
+        "Table 4": {
+            "x": 875,
+            "y": 104,
+            "server": "Ollie",
+            "colour": "Green"
+        }
+    },
+    "Patio": {}
+}

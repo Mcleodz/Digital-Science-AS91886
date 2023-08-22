@@ -117,7 +117,7 @@ def load_table_managment(home_page_root):
     boundry_object.place(x=800, y=75)
 
     generate_floorplan_buttons(table_manager_root, orders_widget,
-                               waitstaff_box, floorplan_button_identities,)
+                               waitstaff_box, floorplan_button_identities)
 
     back_button = Button(table_manager_root, text="Back", command=lambda: close_page(
         page_to_close=table_manager_root), bg="#690500", fg="#F2EFE9")
@@ -127,7 +127,10 @@ def load_table_managment(home_page_root):
 # Tables functions:
 def generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box, table_identities):
     """Generates each table from selected floorplan"""
+    save_button = Button(table_manager_root, text="Save", command=lambda: save_tables(floorplan, table_identities))
+    save_button.place(x=1870, y=1045)
     
+
     clear_page(table_identities, orders_widget, floorplan_button_identities, waitstaff_box)
     # Loads "table.json" file
     with open("tables.json", "r", encoding="utf-8") as tables_file:
@@ -158,9 +161,6 @@ def generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box,
                                     y=tables_object[floorplans][tables]["y"])
                     make_draggable(new_table)
                     table_identities.append(new_table)
-    save_floorplan_button = Button(table_manager_root, text="Save Floorplan", command=lambda: save_tables(floorplan, table_identities), bg="#690500", fg="#F2EFE9")
-    save_floorplan_button.place(x=1525, y= 1045)
-
 
 def create_new_table_popup(floorplan):
     """User Interface for table creation"""
