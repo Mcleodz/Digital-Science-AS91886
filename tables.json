@@ -1,28 +1,28 @@
 {
     "Main Dining": {
-        "Table 1": {
-            "x": 1124,
-            "y": 358,
-            "server": "Ollie",
-            "colour": "Green"
-        },
-        "Table 2": {
-            "x": 920,
-            "y": 268,
-            "server": "Ollie",
-            "colour": "Green"
-        },
         "Table 3": {
-            "x": 1506,
-            "y": 835,
+            "x": 1025,
+            "y": 100,
             "server": "Ollie",
             "colour": "Green"
         },
-        "Table 4": {
-            "x": 875,
-            "y": 104,
-            "server": "Ollie",
-            "colour": "Green"
+        "Table 5": {
+            "x": 925,
+            "y": 100,
+            "server": "Zac",
+            "colour": "Red"
+        },
+        "Table 12": {
+            "x": 1125,
+            "y": 100,
+            "server": "Michael",
+            "colour": "Yellow"
+        },
+        "Table 7": {
+            "x": 825,
+            "y": 100,
+            "server": "Liam",
+            "colour": "Blue"
         }
     },
     "Patio": {}

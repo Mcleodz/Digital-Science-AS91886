@@ -247,17 +247,17 @@ def config_table_gui(floorplan, table_name, table_colour, table_server):
 
     table_name_entry = Entry(
         config_table_popup, width=25, font=("Arial", 15))
-    table_name_entry.insert(END, f"({table_name})")
+    table_name_entry.insert(END, table_name)
     table_name_entry.place(x=0, y=0)
 
     table_colour_entry = Entry(
         config_table_popup, width=25, font=("Arial", 15))
-    table_colour_entry.insert(END, f"({table_colour})")
+    table_colour_entry.insert(END, table_colour)
     table_colour_entry.place(x=0, y=(table_name_entry.winfo_reqheight()))
 
     table_server_entry = Entry(
         config_table_popup, width=25, font=("Arial", 15))
-    table_server_entry.insert(END, f"({table_server})")
+    table_server_entry.insert(END, table_server)
     table_server_entry.place(x=0, y=(
         table_name_entry.winfo_reqheight()+table_colour_entry.winfo_reqheight()))
 
@@ -288,17 +288,18 @@ def config_table(floorplan, table_name_entry, table_colour_entry, table_server_e
                         tables_config[floorplans][tables]["server"] = new_table_server
                         tables_config[floorplans][tables]["colour"] = new_table_colour
                         # Replaces table name with new table name and deletes old one.
-                        tables_config[floorplans][new_table_name] = tables_config[floorplans][tables]
-                        del tables_config[floorplans][tables]
-                        break
+                        if not new_table_name == existing_table_name:
+                            tables_config[floorplans][new_table_name] = tables_config[floorplans][tables]
+                            del tables_config[floorplans][tables]
+                        config_table_popup.destroy()
+                        break                    
     # Saves table name and content to json file.
     with open("tables.json", "w", encoding="utf-8") as tables_config_write:
         to_write = json.dumps(tables_config, indent=4)
         tables_config_write.write(to_write)
+        clear_page(table_identities, orders_widget, floorplan_button_identities, waitstaff_box)
         generate_tables(table_manager_root, floorplan, orders_widget,
                         waitstaff_box, table_identities)
-    config_table_popup.destroy()
-
 
 def clear_page(table_identities, orders_widget, floorplan_button_identities, waitstaff_box):
     clear_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities)
