@@ -1,28 +1,28 @@
 {
     "Main Dining": {
-        "Table 3": {
-            "x": 1025,
+        "Table 1": {
+            "x": 824,
             "y": 100,
             "server": "Ollie",
-            "colour": "Green"
+            "colour": "#7a5901"
         },
-        "Table 5": {
-            "x": 925,
-            "y": 100,
+        "Table 2": {
+            "x": 926,
+            "y": 101,
+            "server": "Liam",
+            "colour": "Orange"
+        },
+        "Table 3": {
+            "x": 1028,
+            "y": 101,
             "server": "Zac",
             "colour": "Red"
         },
-        "Table 12": {
-            "x": 1125,
-            "y": 100,
+        "Table 4": {
+            "x": 1120,
+            "y": 102,
             "server": "Michael",
-            "colour": "Yellow"
-        },
-        "Table 7": {
-            "x": 825,
-            "y": 100,
-            "server": "Liam",
-            "colour": "Blue"
+            "colour": "Green"
         }
     },
     "Patio": {}
