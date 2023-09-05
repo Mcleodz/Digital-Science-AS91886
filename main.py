@@ -3,7 +3,7 @@ from tkinter import Button, Label, Tk, Text, Entry, OptionMenu, StringVar, END
 import json
 from functools import partial
 
-# pylint: disable = W0212, W0108, W0601, W0621, C0200, C0301
+# pylint: disable = W0212, W0108, W0601, W0621, C0200, C0301, E1126
 
 
 def make_draggable(widget):
@@ -72,20 +72,34 @@ def close_page(page_to_close):
     page_to_close.destroy()
     load_home_page()
 
+
 def load_table_managment(home_page_root):
     """Loads the table manager page"""
     # Declares Global Variables
-    global table_manager_root, orders_widget, waitstaff_box, table_identities, boundry_object, floorplan_button_identities
-    
+    global table_manager_root, orders_widget, waitstaff_box, table_identities, boundry_object, floorplan_button_identities, COLOUR_CHOICES
+
     # Creates Table Management root
     table_manager_root = Tk()
     table_manager_root.title("Aterio - Table Management")
     table_manager_root.attributes("-fullscreen", True)
     home_page_root.destroy()
 
-    # Sets table and floorplan button trackers to [] 
+    # Sets table and floorplan button trackers to []
     table_identities = []
     floorplan_button_identities = []
+
+    # Declares List of Colours
+    COLOUR_CHOICES = {
+        "Blue": "#01295F",
+        "Light Blue": "#437F97",
+        "Green": "#849324",
+        "Yellow": "#FFB30F",
+        "Red": "#FD151B",
+        "Black": "#393D3F",
+        "Grey": "#C6C5B9",
+        "Pink": "#EE959E",
+        "Purple": "#9E7BB5"
+    }
 
     # Creates widget to manage orders
     orders_widget = Text(table_manager_root, height=34, width=27, bg="#655A7C",
@@ -99,21 +113,21 @@ def load_table_managment(home_page_root):
 
     # Creates the background bar behind floorplan buttons
     floorplan_buttons_background = Text(table_manager_root, blockcursor=True,
-        state="disabled", bg="#655A7C", height=5, width=150)
+                                        state="disabled", bg="#655A7C", height=5, width=150)
     floorplan_buttons_background.place(x=800, y=0)
 
     # Creates button to allow user to add a floorplan
     create_new_floorplan_button = Button(table_manager_root,
-        text="+ Floor", command=lambda: create_floorplan_interface(table_manager_root,
-        orders_widget, waitstaff_box, floorplan_button_identities), bg="#AB92BF", fg="#F2EFE9",
-        font=("Arial", 15))
+                                         text="+ Floor", command=lambda: create_floorplan_interface(table_manager_root,
+                                                                                                    orders_widget, waitstaff_box, floorplan_button_identities), bg="#AB92BF", fg="#F2EFE9",
+                                         font=("Arial", 15))
     create_new_floorplan_button.place(x=1755, y=15)
 
     # Creates button to allow user to delete a floorplan
     delete_floorplan_button = Button(table_manager_root,
-        text="- Floor", command=lambda: delete_floorplan_popup(table_manager_root,
-        orders_widget, waitstaff_box, floorplan_button_identities),
-        bg="#AB92BF", fg="#F2EFE9", font=("Arial", 15))
+                                     text="- Floor", command=lambda: delete_floorplan_popup(table_manager_root,
+                                                                                            orders_widget, waitstaff_box, floorplan_button_identities),
+                                     bg="#AB92BF", fg="#F2EFE9", font=("Arial", 15))
     delete_floorplan_button.place(
         x=(1760+create_new_floorplan_button.winfo_reqwidth()), y=15)
 
@@ -121,6 +135,11 @@ def load_table_managment(home_page_root):
     boundry_object = Text(table_manager_root, blockcursor=True,
                           state="disabled", bg="#F06233", height=80, width=150)
     boundry_object.place(x=800, y=75)
+
+    global save_button
+    # Creates save button
+    save_button = Button(table_manager_root, text="Save", command=lambda:print("test"))
+    save_button.place(x=1870, y=1045)
 
     # Creates buttons to load any exisiting floorplan
     generate_floorplan_buttons(table_manager_root, orders_widget,
@@ -133,14 +152,12 @@ def load_table_managment(home_page_root):
 
 
 # Tables functions:
-def generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box, table_identities):
+def generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box, table_identities, save_button):
     """Generates each table from selected floorplan"""
-    # Creates save button
-    save_button = Button(table_manager_root, text="Save", command=lambda: save_tables(floorplan, table_identities))
-    save_button.place(x=1870, y=1045)
-    
+
     # Clears page
-    clear_page(table_identities, orders_widget, floorplan_button_identities, waitstaff_box)
+    clear_page(table_identities, orders_widget,
+               floorplan_button_identities, waitstaff_box)
 
     # Loads "table.json" file
     with open("tables.json", "r", encoding="utf-8") as tables_file:
@@ -175,6 +192,7 @@ def generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box,
                     make_draggable(new_table)
                     # Adds table to table tracker list
                     table_identities.append(new_table)
+    save_button.config(command=lambda: save_tables(floorplan, table_identities))
 
 def create_new_table_popup(floorplan):
     """User Interface for table creation"""
@@ -191,29 +209,32 @@ def create_new_table_popup(floorplan):
         new_table_prompt, server_default, options[0], * options)
     table_server.place(x=0, y=59)
 
-    # Creates prompt for user to enter tables colour
-    table_colour = Entry(new_table_prompt, width=25, font=("Arial", 15))
-    table_colour.insert(END, "(New Table Colour)")
+    # Creates drop down menu for colours on floor
+    colour_default = StringVar(new_table_prompt)
+    colour_default.set("")
+    options2 = COLOUR_CHOICES
+    table_colour = OptionMenu(
+        new_table_prompt, colour_default, * options2)
     table_colour.place(x=0, y=30)
 
     # Creates submit button
     submit_button = Button(new_table_prompt, text="Submit", bg="#AB92BF", fg="#F2EFE9",
-        command=lambda: create_new_table(new_table_prompt, floorplan, table_name, server_default,
-        table_x, table_y, table_colour))
+                           command=lambda: create_new_table(new_table_prompt, floorplan, table_name, server_default,
+                                                            table_x, table_y, colour_default))
     submit_button.place(x=280, y=0)
 
     # Creates cancel button
     cancel_button = Button(new_table_prompt, text="Cancel", bg="#690500",
-        fg="#F2EFE9", command=lambda: new_table_prompt.destroy())
+                           fg="#F2EFE9", command=lambda: new_table_prompt.destroy())
     cancel_button.place(x=280, y=30)
 
     # Creates button to confirm table creation
     add_server = Button(new_table_prompt, text="Add Server", bg="#AB92BF", fg="#F2EFE9",
-        command=lambda: create_server_for_floor(new_table_prompt, floorplan, table_name,
-        table_x, table_y, submit_button, add_server, table_colour, table_server))
+                        command=lambda: create_server_for_floor(new_table_prompt, floorplan, table_name,
+                                                                table_x, table_y, submit_button, add_server, colour_default, table_server))
     add_server.place(x=table_server.winfo_reqwidth(), y=60)
 
-    # Creates prompt for user to enter tables name 
+    # Creates prompt for user to enter tables name
     table_name = Entry(new_table_prompt, width=25, font=("Arial", 15))
     table_name.insert(END, "(New Table Name)")
     table_name.place(x=0, y=0)
@@ -223,27 +244,31 @@ def create_new_table_popup(floorplan):
     table_y = int("100")
 
 
-def create_server_for_floor(new_table_prompt, floorplan, table_name, table_x, table_y, submit_button, add_server, table_colour, table_server):
+def create_server_for_floor(new_table_prompt, floorplan, table_name, table_x, table_y, submit_button, add_server, colour_default, table_server):
     """Allows user to create a new server for a table through the table creation popup"""
+    # Generates Text box for a new server creation
     new_server = Entry(new_table_prompt, width=25, font=("Arial", 15))
     new_server.insert(END, "(New Server Name)")
     new_server.place(x=0, y=60)
+    # Edits submit button to load correct information and removes old buttons
     submit_button.config(command=lambda: create_new_table(
-        new_table_prompt, floorplan, table_name, new_server, table_x, table_y, table_colour))
+        new_table_prompt, floorplan, table_name, new_server, table_x, table_y, colour_default))
     add_server.place_forget()
     table_server.place_forget()
 
 
-def create_new_table(popup_root, floorplan, table_name, table_server, table_x, table_y, table_colour):
+def create_new_table(popup_root, floorplan, table_name, table_server, table_x, table_y, colour_default):
     """Gets and saves user inputted information for new table being created"""
+    # Gets user input for buttons
     server = table_server.get()
-    colour = table_colour.get()
+    colour = colour_default.get()
     new_table_info = {
         "x": table_x,
         "y": table_y,
         "server": server,
-        "colour": colour
+        "colour": COLOUR_CHOICES[colour]
     }
+    # Writes new input to save file
     with open("tables.json", "r", encoding="utf-8") as table_object_read:
         tables_read = json.load(table_object_read)
         for floorplans in tables_read:
@@ -271,33 +296,35 @@ def config_table_gui(floorplan, table_name, table_colour, table_server):
     table_name_entry.insert(END, table_name)
     table_name_entry.place(x=0, y=0)
 
-    table_colour_entry = Entry(
-        config_table_popup, width=25, font=("Arial", 15))
-    table_colour_entry.insert(END, table_colour)
-    table_colour_entry.place(x=0, y=(table_name_entry.winfo_reqheight()))
+    colour_default = StringVar(config_table_popup)
+    colour_default.set("")
+    options2 = COLOUR_CHOICES
+    table_colour = OptionMenu(
+        config_table_popup, colour_default, * options2)
+    table_colour.place(x=0, y=table_name_entry.winfo_reqheight())
 
     table_server_entry = Entry(
         config_table_popup, width=25, font=("Arial", 15))
     table_server_entry.insert(END, table_server)
     table_server_entry.place(x=0, y=(
-        table_name_entry.winfo_reqheight()+table_colour_entry.winfo_reqheight()))
+        table_name_entry.winfo_reqheight()+table_colour.winfo_reqheight()))
 
     cancel_button = Button(config_table_popup, text="Cancel",
                            command=lambda: config_table_popup.destroy())
     cancel_button.place(x=table_name_entry.winfo_reqwidth(), y=0)
 
     submit_button = Button(config_table_popup, text="Submit", command=lambda: config_table(
-        floorplan, table_name_entry, table_colour_entry, table_server_entry, table_name, config_table_popup))
+        floorplan, table_name_entry, colour_default, table_server_entry, table_name, config_table_popup))
     submit_button.place(x=table_name_entry.winfo_reqwidth(),
                         y=cancel_button.winfo_reqheight())
 
 
-def config_table(floorplan, table_name_entry, table_colour_entry, table_server_entry, table_name, config_table_popup):
+def config_table(floorplan, table_name_entry, colour_default, table_server_entry, table_name, config_table_popup):
     """Saves configurements to json file"""
     existing_table_name = table_name
     # Sets user input to new var name.
     new_table_name = table_name_entry.get()
-    new_table_colour = table_colour_entry.get()
+    new_table_colour = COLOUR_CHOICES[colour_default.get()]
     new_table_server = table_server_entry.get()
     with open("tables.json", "r", encoding="utf-8") as tables_config_obj:
         tables_config = json.load(tables_config_obj)
@@ -318,18 +345,29 @@ def config_table(floorplan, table_name_entry, table_colour_entry, table_server_e
     with open("tables.json", "w", encoding="utf-8") as tables_config_write:
         to_write = json.dumps(tables_config, indent=4)
         tables_config_write.write(to_write)
-    clear_page(table_identities, orders_widget, floorplan_button_identities, waitstaff_box)
+    clear_page(table_identities, orders_widget,
+               floorplan_button_identities, waitstaff_box)
     generate_tables(table_manager_root, floorplan, orders_widget,
-                    waitstaff_box, table_identities)
-    generate_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities)
+                    waitstaff_box, table_identities, save_button)
+    generate_floorplan_buttons(
+        table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities)
+
 
 def clear_page(table_identities, orders_widget, floorplan_button_identities, waitstaff_box):
-    clear_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box, floorplan_button_identities)
-    for tables in range(len(table_identities)):
+    """Clears loaded page"""
+    num_of_tables = len(table_identities)
+    clear_floorplan_buttons(table_manager_root, orders_widget,
+                            waitstaff_box, floorplan_button_identities)
+    for tables in range(num_of_tables):
+        print(num_of_tables)
         table_identities[tables].destroy()
         orders_widget.delete("1.0", END)
+        waitstaff_box.delete("1.0", END)
+    for i in range(num_of_tables):
+        table_identities.remove(table_identities[i-1])
 
 def save_tables(floorplan, table_identities):
+    """Saves tables"""
     table_number = 0
     with open("tables.json", "r", encoding="utf-8") as tables_object:
         tables_list = json.load(tables_object)
@@ -338,11 +376,11 @@ def save_tables(floorplan, table_identities):
                 for tables in tables_list[floorplan]:
                     if table_identities[table_number]["text"] == tables:
                         current_table = table_identities[table_number]
-                        print(current_table)
                         current_table_name = table_identities[table_number]["text"]
-                        print(current_table_name)
-                        tables_list[floorplan][current_table_name]["x"] = current_table.winfo_x()
-                        tables_list[floorplan][current_table_name]["y"] = current_table.winfo_y()
+                        tables_list[floorplan][current_table_name]["x"] = current_table.winfo_x(
+                        )
+                        tables_list[floorplan][current_table_name]["y"] = current_table.winfo_y(
+                        )
                     table_number += 1
     updated_table = json.dumps(tables_list, indent=4)
     with open("tables.json", "w", encoding="utf-8") as tables_object_w:
@@ -375,7 +413,7 @@ def get_servers_on_floor(floorplan, return_type, *server):
             return servers_list
     if return_type == "servers_key":
         for i in range(len(servers_list)):
-            server_info.append(f"{servers_list[i]}: {servers_colour[i]}\n")
+            server_info.append(f"{servers_list[i]}: {list(COLOUR_CHOICES.keys())[list(COLOUR_CHOICES.values()).index(servers_colour[i])]}\n")
         return "".join(server_info)
     if return_type == "servers_color":
         return server_info[server]
@@ -393,7 +431,7 @@ def generate_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box,
             new_floorplan_button = Button(
                 table_manager_root, text=floorplan, font=("Arial", 15))
             new_floorplan_button.config(command=partial(
-                generate_tables, table_manager_root, floorplan, orders_widget, waitstaff_box, table_identities))
+                generate_tables, table_manager_root, floorplan, orders_widget, waitstaff_box, table_identities, save_button))
             # Places button and updates x position to make buttons evenly spaced apart
             new_floorplan_button.place(x=(825 + iterating_x_pos), y=15)
             iterating_x_pos += (new_floorplan_button.winfo_reqwidth() + 15)
@@ -485,31 +523,6 @@ def delete_floorplan(delete_floorplan_popup_root, floorplan_to_delete, table_man
     clear_floorplan_buttons(table_manager_root, orders_widget,
                             waitstaff_box, floorplan_button_identities)
 
-
-def floorplan_update(floorplan, table_identities, orders_widget):
-    table_to_check = 0
-    with open("tables.json", "r", encoding="utf-8") as find_floorplan_object:
-        find_floorplan = json.load(find_floorplan_object)
-        for floorplans in find_floorplan:
-            if floorplans == floorplan:
-                for tables in find_floorplan[floorplans]:
-                    if tables == table_identities[table_to_check]["text"]:
-                        new_x = table_identities[table_to_check].winfo_x()
-                        new_y = table_identities[table_to_check].winfo_y()
-                        find_floorplan[floorplans][tables]['x'] = new_x
-                        find_floorplan[floorplans][tables]['y'] = new_y
-                        floorplan_update_writing = json.dumps(
-                            find_floorplan, indent=4)
-                        with open("tables.json", "w", encoding="utf-8") as floorplan_save_object:
-                            floorplan_save_object.write(
-                                floorplan_update_writing)
-                        table_identities[table_to_check].destroy()
-                        table_identities.remove(
-                            table_identities[table_to_check])
-    orders_widget.delete("1.0", END)
-    return table_identities
-
-
 # Popup Functions:
 def warning_popup(warning):
     """Function to create generic popups when needed"""
@@ -522,7 +535,6 @@ def warning_popup(warning):
                            command=lambda: warning_popup_root.destroy())
 
     warning_text.place(x=0, y=0)
-    cancel_button.place(x=0, y=(warning_text.winfo_reqheight()))
-
+    cancel_button.place(x=0, y=warning_text.winfo_reqheight())
 
 load_home_page()

@@ -1,28 +1,76 @@
 {
     "Main Dining": {
         "Table 1": {
-            "x": 824,
+            "x": 825,
             "y": 100,
             "server": "Ollie",
-            "colour": "#7a5901"
+            "colour": "#437F97"
         },
         "Table 2": {
-            "x": 926,
-            "y": 101,
-            "server": "Liam",
-            "colour": "Orange"
+            "x": 872,
+            "y": 100,
+            "server": "Ollie",
+            "colour": "#437F97"
         },
         "Table 3": {
-            "x": 1028,
-            "y": 101,
-            "server": "Zac",
-            "colour": "Red"
+            "x": 919,
+            "y": 100,
+            "server": "Ollie",
+            "colour": "#437F97"
         },
         "Table 4": {
-            "x": 1120,
-            "y": 102,
+            "x": 824,
+            "y": 125,
             "server": "Michael",
-            "colour": "Green"
+            "colour": "#393D3F"
+        },
+        "Table 5": {
+            "x": 872,
+            "y": 125,
+            "server": "Michael",
+            "colour": "#393D3F"
+        },
+        "Table 6": {
+            "x": 918,
+            "y": 125,
+            "server": "Michael",
+            "colour": "#393D3F"
+        },
+        "Table 7": {
+            "x": 824,
+            "y": 151,
+            "server": "Zac",
+            "colour": "#FD151B"
+        },
+        "Table 8": {
+            "x": 871,
+            "y": 151,
+            "server": "Zac",
+            "colour": "#FD151B"
+        },
+        "Table 9": {
+            "x": 917,
+            "y": 151,
+            "server": "Zac",
+            "colour": "#FD151B"
+        },
+        "Table 10": {
+            "x": 816,
+            "y": 176,
+            "server": "Liam",
+            "colour": "#849324"
+        },
+        "Table 11": {
+            "x": 869,
+            "y": 176,
+            "server": "Liam",
+            "colour": "#849324"
+        },
+        "Table 12": {
+            "x": 996,
+            "y": 292,
+            "server": "Liam",
+            "colour": "#849324"
         }
     },
     "Patio": {}
