@@ -359,12 +359,12 @@ def clear_page(table_identities, orders_widget, floorplan_button_identities, wai
     clear_floorplan_buttons(table_manager_root, orders_widget,
                             waitstaff_box, floorplan_button_identities)
     for tables in range(num_of_tables):
-        print(num_of_tables)
-        table_identities[tables].destroy()
+        table_identities[0].destroy()
         orders_widget.delete("1.0", END)
         waitstaff_box.delete("1.0", END)
-    for i in range(num_of_tables):
-        table_identities.remove(table_identities[i-1])
+        table_identities.remove(table_identities[0])
+        print(tables)
+
 
 def save_tables(floorplan, table_identities):
     """Saves tables"""
