@@ -185,7 +185,7 @@ def generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box,
                     # Creates button for current table at saved coordinates.
                     new_table = Button(table_manager_root, text=tables, fg="white",
                                        bg=tables_object[floorplans][tables]["colour"],
-                                       command=partial(config_table_gui, floorplan, tables, tables_object[floorplans][tables]["colour"], tables_object[floorplans][tables]["server"]))
+                                       command=partial(edit_or_move, floorplan, tables, tables_object[floorplans][tables]["colour"], tables_object[floorplans][tables]["server"]))
                     new_table.place(x=tables_object[floorplans][tables]["x"],
                                     y=tables_object[floorplans][tables]["y"])
                     # Gives table drag and drop properties
@@ -285,6 +285,21 @@ def create_new_table(popup_root, floorplan, table_name, table_server, table_x, t
     popup_root.destroy()
 
 
+def edit_or_move(floorplan, table_name, table_colour, table_server):
+    edit_or_move_popup = Tk()
+    edit_or_move_popup.title(f"Edit or Move {table_name}")
+    edit_or_move_popup.geometry("330x100")
+    
+    text = Label(edit_or_move_popup, text="Are you attempting to edit or move this table?")
+    text.pack()
+
+    edit_button = Button(edit_or_move_popup, text="Edit", command=lambda:config_table_gui(floorplan, table_name, table_colour, table_server))
+    edit_button.pack()
+
+    move_button = Button(edit_or_move_popup, text="Move", command=lambda:edit_or_move_popup.destroy())
+    move_button.pack()
+
+
 def config_table_gui(floorplan, table_name, table_colour, table_server):
     """Allows user to config a table"""
     config_table_popup = Tk()
@@ -310,7 +325,7 @@ def config_table_gui(floorplan, table_name, table_colour, table_server):
         table_name_entry.winfo_reqheight()+table_colour.winfo_reqheight()))
 
     cancel_button = Button(config_table_popup, text="Cancel",
-                           command=lambda: config_table_popup.destroy())
+                        command=lambda: config_table_popup.destroy())
     cancel_button.place(x=table_name_entry.winfo_reqwidth(), y=0)
 
     submit_button = Button(config_table_popup, text="Submit", command=lambda: config_table(
