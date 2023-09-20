@@ -5,6 +5,7 @@ from functools import partial
 
 # pylint: disable = W0212, W0108, W0601, W0621, C0200, C0301, E1126
 
+# TODO: make UI auto scale to screen size
 
 def make_draggable(widget):
     """Drag and Drop Function - 1"""
@@ -36,33 +37,36 @@ def on_drag_motion(event):
 def load_home_page():
     """Home page creation code"""
     # Create Main Root
-    global home_page_root
+    global home_page_root, DEVICE_HEIGHT, DEVICE_WIDTH, CHARACTER_WIDTH_CONSTANT
+
     home_page_root = Tk()
     home_page_root.title("Aterio")
     home_page_root.config(bg="#F2EFE9")
     home_page_root.attributes("-fullscreen", True)
 
+    # Gets screen dimensions in order to auto size GUI
+    DEVICE_HEIGHT = home_page_root.winfo_screenheight()
+    DEVICE_WIDTH = home_page_root.winfo_screenwidth()
+    CHARACTER_WIDTH_CONSTANT = round(DEVICE_WIDTH/8)
+
     # Makes program name text
-    aterio_text = Label(home_page_root, text="Aterio", width=71,
-                        height=6, bg="#F06233", fg="#F2EFE9", font=("Arial", 35))
-    aterio_text.pack()
+    aterio_text = Label(home_page_root, text="Aterio", bg="#F06233", fg="#F2EFE9", font=("Arial", 35))
+    aterio_text.pack(fill="both", expand=True)
 
     # Makes button to load table manager software
     table_manager_button = Button(home_page_root,
-                                  text="Table Manager", command=lambda: load_table_managment(home_page_root), width=84,
-                                  height=5, bg="#655A7C", fg="#F2EFE9", font=("Arial", 30))
-    table_manager_button.pack()
+                                  text="Table Manager", command=lambda: load_table_managment(home_page_root), bg="#655A7C", fg="#F2EFE9", font=("Arial", 30))
+    table_manager_button.pack(fill="both", expand=True)
 
     # Makes button to load reservation manager software
     reservation_manager_button = Button(home_page_root,
-                                        text="Reservation manager", command=lambda: warning_popup("Reservation manager is not currently available"), width=84, height=5, bg="#655A7C",
+                                        text="Reservation manager", command=lambda: warning_popup("Reservation manager is not currently available"), bg="#655A7C",
                                         fg="#F2EFE9", font=("Arial", 30))
-    reservation_manager_button.pack()
+    reservation_manager_button.pack(fill="both", expand=True)
 
     # Makes button to quit program
-    quit_button = Button(home_page_root, text="Quit", command=lambda: quit(),
-                         width=84, height=5, bg="#690500", fg="#F2EFE9", font=("Arial", 30))
-    quit_button.pack()
+    quit_button = Button(home_page_root, text="Quit", command=lambda: quit(), bg="#690500", fg="#F2EFE9", font=("Arial", 30))
+    quit_button.pack(fill="both", expand=True)
 
     home_page_root.mainloop()
 
@@ -76,7 +80,7 @@ def close_page(page_to_close):
 def load_table_managment(home_page_root):
     """Loads the table manager page"""
     # Declares Global Variables
-    global table_manager_root, orders_widget, waitstaff_box, table_identities, boundry_object, floorplan_button_identities, COLOUR_CHOICES
+    global table_manager_root, orders_widget, waitstaff_box, table_identities, floorplan_buttons_background, boundry_object, floorplan_button_identities, COLOUR_CHOICES
 
     # Creates Table Management root
     table_manager_root = Tk()
@@ -102,26 +106,27 @@ def load_table_managment(home_page_root):
     }
 
     # Creates widget to manage orders
-    orders_widget = Text(table_manager_root, height=34, width=27, bg="#655A7C",
+    orders_widget = Text(table_manager_root, height=DEVICE_HEIGHT, width=int(round(CHARACTER_WIDTH_CONSTANT/10)), bg="#655A7C",
                          fg="#F2EFE9", font=("Arial", 20), insertbackground="#F2EFE9")
     orders_widget.place(x=0, y=0)
 
     # Creates widget to display waitstaff
-    waitstaff_box = Text(table_manager_root, height=34, width=27, bg="#655A7C",
+    waitstaff_box = Text(table_manager_root, height=DEVICE_HEIGHT, width=int(round(CHARACTER_WIDTH_CONSTANT/10)), bg="#655A7C",
                          fg="#F2EFE9", font=("Arial", 20), insertbackground="#F2EFE9")
-    waitstaff_box.place(x=390, y=0)
+    waitstaff_box.place(x=(0+orders_widget.winfo_reqwidth()), y=0)
 
     # Creates the background bar behind floorplan buttons
     floorplan_buttons_background = Text(table_manager_root, blockcursor=True,
-                                        state="disabled", bg="#655A7C", height=5, width=150)
-    floorplan_buttons_background.place(x=800, y=0)
+                                        state="disabled", bg="#655A7C", height=5, width=round((orders_widget.winfo_reqwidth()+waitstaff_box.winfo_reqwidth())-CHARACTER_WIDTH_CONSTANT))
+    floorplan_buttons_background.place(x=(orders_widget.winfo_reqwidth()+waitstaff_box.winfo_reqwidth()), y=0)
+
 
     # Creates button to allow user to add a floorplan
     create_new_floorplan_button = Button(table_manager_root,
                                          text="+ Floor", command=lambda: create_floorplan_interface(table_manager_root,
                                                                                                     orders_widget, waitstaff_box, floorplan_button_identities), bg="#AB92BF", fg="#F2EFE9",
                                          font=("Arial", 15))
-    create_new_floorplan_button.place(x=1755, y=15)
+    create_new_floorplan_button.place(x=DEVICE_WIDTH-create_new_floorplan_button.winfo_reqwidth(), y=15)
 
     # Creates button to allow user to delete a floorplan
     delete_floorplan_button = Button(table_manager_root,
@@ -129,17 +134,17 @@ def load_table_managment(home_page_root):
                                                                                             orders_widget, waitstaff_box, floorplan_button_identities),
                                      bg="#AB92BF", fg="#F2EFE9", font=("Arial", 15))
     delete_floorplan_button.place(
-        x=(1760+create_new_floorplan_button.winfo_reqwidth()), y=15)
+        x=(DEVICE_WIDTH-create_new_floorplan_button.winfo_reqwidth())-create_new_floorplan_button.winfo_reqwidth(), y=15)
 
     # Creates Boundry object for table drag and drop
     boundry_object = Text(table_manager_root, blockcursor=True,
-                          state="disabled", bg="#F06233", height=80, width=150)
-    boundry_object.place(x=800, y=75)
+                          state="disabled", bg="#F06233", height=DEVICE_HEIGHT-5, width=DEVICE_WIDTH)
+    boundry_object.place(x=(orders_widget.winfo_reqwidth()+waitstaff_box.winfo_reqwidth()), y=75)
 
     global save_button
     # Creates save button
     save_button = Button(table_manager_root, text="Save", command=lambda:print("test"))
-    save_button.place(x=1870, y=1045)
+    save_button.place(x=DEVICE_WIDTH-(save_button.winfo_reqwidth()+15), y=DEVICE_HEIGHT-(save_button.winfo_reqheight()+15))
 
     # Creates buttons to load any exisiting floorplan
     generate_floorplan_buttons(table_manager_root, orders_widget,
@@ -148,7 +153,7 @@ def load_table_managment(home_page_root):
     # Creates back button
     back_button = Button(table_manager_root, text="Back", command=lambda: close_page(
         page_to_close=table_manager_root), bg="#690500", fg="#F2EFE9")
-    back_button.place(x=10, y=1045)
+    back_button.place(x=15, y=DEVICE_HEIGHT-(save_button.winfo_reqheight()+15))
 
 
 # Tables functions:
@@ -173,7 +178,7 @@ def generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box,
         # Creates "new table" button
         create_new_table_button = Button(
             table_manager_root, text="Add Table", command=lambda: create_new_table_popup(floorplan))
-        create_new_table_button.place(x=825, y=1045)
+        create_new_table_button.place(x=(waitstaff_box.winfo_reqwidth()+orders_widget.winfo_reqwidth())+15, y=(DEVICE_HEIGHT-create_new_table_button.winfo_reqheight()-15))
 
         # Iterates through floorplans in tables.json to find selected floorplan
         for floorplans in tables_object:
@@ -240,10 +245,10 @@ def create_new_table_popup(floorplan):
     table_name.place(x=0, y=0)
 
     # Sets default coordinates
-    table_x = int("825")
+    table_x = int(waitstaff_box.winfo_reqwidth()+orders_widget.winfo_reqwidth()+15)
     table_y = int("100")
 
-
+ 
 def create_server_for_floor(new_table_prompt, floorplan, table_name, table_x, table_y, submit_button, add_server, colour_default, table_server):
     """Allows user to create a new server for a table through the table creation popup"""
     # Generates Text box for a new server creation
@@ -378,7 +383,6 @@ def clear_page(table_identities, orders_widget, floorplan_button_identities, wai
         orders_widget.delete("1.0", END)
         waitstaff_box.delete("1.0", END)
         table_identities.remove(table_identities[0])
-        print(tables)
 
 
 def save_tables(floorplan, table_identities):
@@ -448,7 +452,7 @@ def generate_floorplan_buttons(table_manager_root, orders_widget, waitstaff_box,
             new_floorplan_button.config(command=partial(
                 generate_tables, table_manager_root, floorplan, orders_widget, waitstaff_box, table_identities, save_button))
             # Places button and updates x position to make buttons evenly spaced apart
-            new_floorplan_button.place(x=(825 + iterating_x_pos), y=15)
+            new_floorplan_button.place(x=((waitstaff_box.winfo_reqwidth()+orders_widget.winfo_reqwidth()+15) + iterating_x_pos), y=15)
             iterating_x_pos += (new_floorplan_button.winfo_reqwidth() + 15)
             floorplan_button_identities.append(new_floorplan_button)
 
