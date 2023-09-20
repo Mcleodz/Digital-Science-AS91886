@@ -1,2 +1,27 @@
 {
+    "Main Dining": {
+        "Table 1": {
+            "x": 772,
+            "y": 383,
+            "server": "Charles",
+            "colour": "#FD151B"
+        },
+        "Table 2": {
+            "x": 1149,
+            "y": 280,
+            "server": "Michael",
+            "colour": "#9E7BB5"
+        },
+        "Table 3": {
+            "x": 537,
+            "y": 100,
+            "server": "Liam",
+            "colour": "#393D3F"
+        }
+    },
+    "Patio": {},
+    "Rooftop": {},
+    "Bar": {},
+    "Outside": {},
+    "Front": {}
 }

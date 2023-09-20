@@ -126,15 +126,15 @@ def load_table_managment(home_page_root):
                                          text="+ Floor", command=lambda: create_floorplan_interface(table_manager_root,
                                                                                                     orders_widget, waitstaff_box, floorplan_button_identities), bg="#AB92BF", fg="#F2EFE9",
                                          font=("Arial", 15))
-    create_new_floorplan_button.place(x=DEVICE_WIDTH-create_new_floorplan_button.winfo_reqwidth(), y=15)
+    create_new_floorplan_button.place(x=DEVICE_WIDTH-create_new_floorplan_button.winfo_reqwidth()-create_new_floorplan_button.winfo_reqwidth()-30, y=15)
 
     # Creates button to allow user to delete a floorplan
     delete_floorplan_button = Button(table_manager_root,
                                      text="- Floor", command=lambda: delete_floorplan_popup(table_manager_root,
                                                                                             orders_widget, waitstaff_box, floorplan_button_identities),
-                                     bg="#AB92BF", fg="#F2EFE9", font=("Arial", 15))
+                                     bg="#690500", fg="#F2EFE9", font=("Arial", 15))
     delete_floorplan_button.place(
-        x=(DEVICE_WIDTH-create_new_floorplan_button.winfo_reqwidth())-create_new_floorplan_button.winfo_reqwidth(), y=15)
+        x=(DEVICE_WIDTH-create_new_floorplan_button.winfo_reqwidth())-15, y=15)
 
     # Creates Boundry object for table drag and drop
     boundry_object = Text(table_manager_root, blockcursor=True,
@@ -143,7 +143,7 @@ def load_table_managment(home_page_root):
 
     global save_button
     # Creates save button
-    save_button = Button(table_manager_root, text="Save", command=lambda:print("test"))
+    save_button = Button(table_manager_root, text="Save", command=lambda:print("test"), bg="#AB92BF", fg="#F2EFE9")
     save_button.place(x=DEVICE_WIDTH-(save_button.winfo_reqwidth()+15), y=DEVICE_HEIGHT-(save_button.winfo_reqheight()+15))
 
     # Creates buttons to load any exisiting floorplan
@@ -177,7 +177,7 @@ def generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box,
 
         # Creates "new table" button
         create_new_table_button = Button(
-            table_manager_root, text="Add Table", command=lambda: create_new_table_popup(floorplan))
+            table_manager_root, text="Add Table", command=lambda: create_new_table_popup(floorplan), bg="#655A7C", fg="#F2EFE9")
         create_new_table_button.place(x=(waitstaff_box.winfo_reqwidth()+orders_widget.winfo_reqwidth())+15, y=(DEVICE_HEIGHT-create_new_table_button.winfo_reqheight()-15))
 
         # Iterates through floorplans in tables.json to find selected floorplan
@@ -198,6 +198,7 @@ def generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box,
                     # Adds table to table tracker list
                     table_identities.append(new_table)
     save_button.config(command=lambda: save_tables(floorplan, table_identities))
+    table_manager_root.title(f"Aterio - Table Management - {floorplan}")
 
 def create_new_table_popup(floorplan):
     """User Interface for table creation"""
@@ -287,8 +288,11 @@ def create_new_table(popup_root, floorplan, table_name, table_server, table_x, t
         added_table = json.dumps(tables_read, indent=4)
     with open("tables.json", "w", encoding="utf-8") as tables_object_write:
         tables_object_write.write(added_table)
+    new_table = Button(table_manager_root, text=table_name.get(), fg="white", 
+                       bg=colour, command=lambda: edit_or_move(floorplan, table_name.get(), colour, server))
+    new_table.place(x=table_x, y=table_y)
+    make_draggable(new_table)
     popup_root.destroy()
-
 
 def edit_or_move(floorplan, table_name, table_colour, table_server):
     edit_or_move_popup = Tk()
