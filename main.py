@@ -36,7 +36,7 @@ def on_drag_motion(event):
 def load_home_page():
     """Home page creation code"""
 
-    # Declaring global home page variables
+    # Declaring Screen size constants for auto sizing the GUI.
     global DEVICE_HEIGHT, DEVICE_WIDTH, CHARACTER_WIDTH_CONSTANT, home_page_root
 
     # Creates home page for Aterio
@@ -45,7 +45,6 @@ def load_home_page():
     home_page_root.config(bg="#F2EFE9")
     home_page_root.attributes("-fullscreen", True)
 
-    # Declaring screen size constant
     DEVICE_HEIGHT = home_page_root.winfo_screenheight()
     DEVICE_WIDTH = home_page_root.winfo_screenwidth()
     CHARACTER_WIDTH_CONSTANT = round(DEVICE_WIDTH/8)
@@ -239,7 +238,7 @@ def create_new_table_popup(floorplan):
     server_default.set(get_servers_on_floor(floorplan, "servers_list")[0])
     options = get_servers_on_floor(floorplan, "servers_list")
     table_server = OptionMenu(
-        new_table_prompt, server_default, options[0], * options)
+        new_table_prompt, server_default, * options)
     table_server.place(x=0, y=59)
 
     # Creates drop down menu for colours on floor
@@ -306,10 +305,17 @@ def create_new_table(popup_root, floorplan, table_name,
     elif not table_server.get().isalpha():
         warning_popup("Please enter a valid server name")
 
+    elif table_server.get() == "":
+        warning_popup("Please assign a server to the table")
+
+    elif colour_default.get() == "":
+        warning_popup("Please assign the table a colour")
+
     else:
         # Gets user input from text/dropdown boxes
         server = table_server.get()
         colour = colour_default.get()
+
 
         # Sets new table data to inputted data
         new_table_info = {
@@ -340,15 +346,8 @@ def create_new_table(popup_root, floorplan, table_name,
         with open("tables.json", "w", encoding="utf-8") as tables_object_write:
             tables_object_write.write(added_table)
 
-        # Places the new table on the screen.
-        new_table = Button(table_manager_root, text=table_name.get(), fg="white",
-                           bg=COLOUR_CHOICES[colour], command=lambda: edit_or_move(
-                               floorplan, table_name.get(), colour, server))
-        new_table.place(x=table_x, y=table_y)
-
-        # Adds table to lsit of tables so it can be managed and gives table drag and drop property
-        table_identities.append(new_table)
-        make_draggable(new_table)
+        generate_tables(table_manager_root, floorplan, orders_widget, waitstaff_box,
+                        table_identities, save_button)
 
         # Closes popup
         popup_root.destroy()
@@ -430,15 +429,29 @@ def config_table(floorplan, table_name_entry, colour_default,
     new_table_colour = COLOUR_CHOICES[colour_default.get()]
     new_table_server = table_server_entry.get()
 
+    # Checking validity of new table colour:
+    if new_table_colour == "":
+        warning_popup("Please select a colour for the table")
+
+    # Checking validity of new table server:
+    elif new_table_server == "":
+        warning_popup("Please select a server for the table")
+
     # Checking validity of new table name:
-    if not new_table_name == "":
+    elif new_table_name == "":
+        warning_popup("Please name the table")
         # Finds table in json file
+
+    else:
         with open("tables.json", "r", encoding="utf-8") as tables_config_obj:
             tables_config = json.load(tables_config_obj)
             for floorplans in tables_config:
                 if floorplans == floorplan:
                     for tables in tables_config[floorplans]:
-                        if tables == existing_table_name:
+                        if new_table_name in tables:
+                            warning_popup("Please give the table a unique name")
+
+                        elif tables == existing_table_name:
                             # Finds table to configure and edits server name and colour.
                             tables_config[floorplans][tables]["server"] = new_table_server
                             tables_config[floorplans][tables]["colour"] = new_table_colour
